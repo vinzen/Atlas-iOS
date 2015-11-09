@@ -32,7 +32,7 @@
 
 - (BOOL)canBecomeFirstResponder
 {
-    return YES;
+    return NO;
 }
 
 @end
