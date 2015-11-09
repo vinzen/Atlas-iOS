@@ -46,6 +46,17 @@ extern NSString *const ATLImagePreviewHeightKey;
 extern NSString *const ATLLocationLatitudeKey;
 extern NSString *const ATLLocationLongitudeKey;
 
+/**
+  Set this block to customize MaxCellWidth.
+  Set to NULL to keep default (215) value.
+*/
+extern CGFloat (^ATLMaxCellWidthBlock)();
+/**
+ Set this block to customize MaxCellHeight.
+ Set to NULL to keep default (300) value.
+*/
+extern CGFloat (^ATLMaxCellHeightBlock)();
+
 //---------------------------------
 // @name Internationalization Macro
 //---------------------------------

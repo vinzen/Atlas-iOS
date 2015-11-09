@@ -46,14 +46,23 @@ NSString *const ATLLocationLongitudeKey = @"lon";
 
 #pragma mark - Max Cell Dimensions
 
+CGFloat (__strong ^ATLMaxCellWidthBlock)() = NULL;
+CGFloat (__strong ^ATLMaxCellHeightBlock)() = NULL;
+
 CGFloat ATLMaxCellWidth()
 {
-    return 215;
+  if (ATLMaxCellWidthBlock) {
+    return ATLMaxCellWidthBlock();
+  }
+  return 215;
 }
 
 CGFloat ATLMaxCellHeight()
 {
-    return 300;
+  if (ATLMaxCellHeightBlock) {
+    return ATLMaxCellHeightBlock();
+  }
+  return 300;
 }
 
 #pragma mark - Private Image Utilities
@@ -175,10 +184,10 @@ NSArray *ATLMessagePartsWithMediaAttachment(ATLMediaAttachment *mediaAttachment)
     if (!mediaAttachment.mediaInputStream) {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"Cannot create an LYRMessagePart with `nil` mediaInputStream." userInfo:nil];
     }
-    
+
     // Create the message part for the main media (should be on index zero).
     [messageParts addObject:[LYRMessagePart messagePartWithMIMEType:mediaAttachment.mediaMIMEType stream:mediaAttachment.mediaInputStream]];
-    
+
     // If there's a thumbnail in the attachment, add it to the message parts on the second index.
     if (mediaAttachment.thumbnailInputStream) {
         [messageParts addObject:[LYRMessagePart messagePartWithMIMEType:mediaAttachment.thumbnailMIMEType stream:mediaAttachment.thumbnailInputStream]];
@@ -203,9 +212,9 @@ void ATLAssetURLOfLastPhotoTaken(void(^completionHandler)(NSURL *assetURL, NSErr
 {
     // Credit goes to @iBrad Apps on Stack Overflow
     // http://stackoverflow.com/questions/8867496/get-last-image-from-photos-app
-    
+
     ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-    
+
     // Enumerate just the photos and videos group by using ALAssetsGroupSavedPhotos.
     [library enumerateGroupsWithTypes:ALAssetsGroupSavedPhotos usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
         // When done, the group enumeration block is called another time with group set to nil.
@@ -218,7 +227,7 @@ void ATLAssetURLOfLastPhotoTaken(void(^completionHandler)(NSURL *assetURL, NSErr
             completionHandler(nil, [NSError errorWithDomain:ATLErrorDomain code:ATLErrorNoPhotos userInfo:@{NSLocalizedDescriptionKey: @"There are no photos."}]);
             return;
         }
-        
+
         [group enumerateAssetsWithOptions:NSEnumerationReverse usingBlock:^(ALAsset *result, NSUInteger index, BOOL *innerStop) {
             // When done, the asset enumeration block is called another time with result set to nil.
             if (!result) return;
@@ -237,29 +246,29 @@ void ATLLastPhotoTaken(void(^completionHandler)(UIImage *image, NSError *error))
 {
     // Credit goes to @iBrad Apps on Stack Overflow
     // http://stackoverflow.com/questions/8867496/get-last-image-from-photos-app
-    
+
     ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-    
+
     // Enumerate just the photos and videos group by using ALAssetsGroupSavedPhotos.
     [library enumerateGroupsWithTypes:ALAssetsGroupSavedPhotos usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
         // When done, the group enumeration block is called another time with group set to nil.
         if (!group) return;
-        
+
         // Within the group enumeration block, filter to enumerate just photos.
         [group setAssetsFilter:[ALAssetsFilter allPhotos]];
-        
+
         if ([group numberOfAssets] == 0) {
             completionHandler(nil, [NSError errorWithDomain:ATLErrorDomain code:ATLErrorNoPhotos userInfo:@{NSLocalizedDescriptionKey: @"There are no photos."}]);
             return;
         }
-        
+
         [group enumerateAssetsWithOptions:NSEnumerationReverse usingBlock:^(ALAsset *result, NSUInteger index, BOOL *innerStop) {
             // When done, the asset enumeration block is called another time with result set to nil.
             if (!result) return;
-            
+
             ALAssetRepresentation *representation = [result defaultRepresentation];
             UIImage *latestPhoto = [UIImage imageWithCGImage:[representation fullScreenImage]];
-            
+
             // Stop the enumerations
             *innerStop = YES;
             *stop = YES;
@@ -275,25 +284,25 @@ UIImage *ATLPinPhotoForSnapshot(MKMapSnapshot *snapshot, CLLocationCoordinate2D 
     // Create a pin image.
     MKAnnotationView *pin = [[MKPinAnnotationView alloc] initWithAnnotation:nil reuseIdentifier:@""];
     UIImage *pinImage = pin.image;
-    
+
     // Draw the image.
     UIImage *image = snapshot.image;
     UIGraphicsBeginImageContextWithOptions(image.size, YES, image.scale);
     [image drawAtPoint:CGPointMake(0, 0)];
-    
+
     // Draw the pin.
     CGPoint point = [snapshot pointForCoordinate:location];
     [pinImage drawAtPoint:CGPointMake(point.x, point.y - pinImage.size.height)];
     UIImage *finalImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    
+
     return finalImage;
 }
 
 NSArray *ATLTextCheckingResultsForText(NSString *text, NSTextCheckingType linkTypes)
 {
     if (!text) return nil;
-    
+
     NSError *error;
     NSDataDetector *detector = [NSDataDetector dataDetectorWithTypes:linkTypes
                                                                error:&error];
