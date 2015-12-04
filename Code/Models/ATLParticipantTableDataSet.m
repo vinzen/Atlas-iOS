@@ -112,12 +112,18 @@ static NSString *const ATLParticipantTableMiscellaneaSectionTitle = @"#";
 
 - (NSUInteger)numberOfParticipantsInSection:(NSUInteger)section
 {
+    if (self.sections.count == 0) {
+      return nil;
+    }
     ATLParticipantTableSectionData *sectionData = self.sections[section];
     return sectionData.participantsRange.length;
 }
 
 - (id<ATLParticipant>)participantAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (self.sections.count == 0) {
+      return nil;
+    }
     ATLParticipantTableSectionData *sectionData = self.sections[indexPath.section];
     NSUInteger index = sectionData.participantsRange.location + indexPath.row;
     id<ATLParticipant> participant = self.participants[index];
@@ -126,6 +132,9 @@ static NSString *const ATLParticipantTableMiscellaneaSectionTitle = @"#";
 
 - (NSIndexPath *)indexPathForParticipant:(id<ATLParticipant>)participant
 {
+    if (participant == nil) {
+      return nil;
+    }
     NSUInteger index = [self.participants indexOfObject:participant];
     if (index == NSNotFound) return nil;
     __block NSIndexPath *indexPath;
