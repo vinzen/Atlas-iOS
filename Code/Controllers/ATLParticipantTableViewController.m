@@ -98,7 +98,7 @@ NSString *const ATLParticipantTableViewControllerTitle = @"Participants";
     self.tableView.sectionFooterHeight = 0;
     self.tableView.sectionHeaderHeight = 20;
     [self.tableView registerClass:[ATLParticipantSectionHeaderView class] forHeaderFooterViewReuseIdentifier:ATLParticipantTableSectionHeaderIdentifier];
-    
+
     self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectZero];
     [self.searchBar sizeToFit];
     self.searchBar.translucent = NO;
@@ -106,7 +106,7 @@ NSString *const ATLParticipantTableViewControllerTitle = @"Participants";
     self.searchBar.delegate = self;
     self.searchBar.userInteractionEnabled = YES;
     self.tableView.tableHeaderView = self.searchBar;
-    
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     self.searchController = [[UISearchDisplayController alloc] initWithSearchBar:self.searchBar contentsController:self];
@@ -264,6 +264,9 @@ NSString *const ATLParticipantTableViewControllerTitle = @"Participants";
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     id<ATLParticipant> participant = [self participantForTableView:tableView atIndexPath:indexPath];
+    if (participant == nil) {
+      return ;
+    }
     [self.selectedParticipants addObject:participant];
     if (tableView != self.tableView) {
         NSIndexPath *unfilteredIndexPath = [self indexPathForParticipant:participant inTableView:self.tableView];
