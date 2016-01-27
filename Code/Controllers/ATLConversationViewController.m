@@ -271,7 +271,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
 
     // Mark all messages as read if needed
     if (self.conversation.lastMessage && self.marksMessagesAsRead) {
-      //        [self.conversation markAllMessagesAsRead:nil];
+        [self.conversation markAllMessagesAsRead:nil];
     }
 }
 
